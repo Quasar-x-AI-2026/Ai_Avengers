@@ -78,10 +78,7 @@ You can also switch modes using keyboard keys **(1–5)**.
 
 
 ### 1️⃣ Clone the repository
-<!-- ```bash -->
-git clone https://github.com/your-username/blind-assistant.git
-cd blind-assistant
-
+git clone https://github.com/Quasar-x-AI-2026/Ai_Avengers
 
 ### 2️⃣ Install dependencies
 pip install -r requirements.txt
@@ -96,14 +93,14 @@ Update the path in code:
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 ### 4️⃣ Run the project
-python main.py
+python app.py
 
 ---
 
 ## Configuration
 
 - Update Twilio credentials before use
-- Change camera index if required
+- Change camera index source (0,1,2) if required 
 - Ensure model files are in correct paths
 
 ---
@@ -133,6 +130,4 @@ EMERGENCY_WHATSAPP_TO = "whatsapp:+91XXXXXXXXXX"
 
 ---
 
-## Disclaimer
-This project is for educational and assistive purposes only.
-It should not be used as the sole safety system.
+
