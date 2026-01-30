@@ -1,0 +1,10 @@
+opencv-python
+ultralytics
+pytesseract
+speechrecognition
+torch
+twilio
+numpy
+requests
+pywin32
+Pillow
