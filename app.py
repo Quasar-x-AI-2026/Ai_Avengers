@@ -287,4 +287,123 @@ def background_voice_listener():
             except sr.UnknownValueError: pass 
             except Exception as e: pass
 
+def change_mode_logic(new_mode):
+    global MODE, tracked_faces, name_history, next_id, stable_boxes, last_announced
+    global latest_ocr_text, ocr_stability_count
+    
+    if MODE == new_mode: return 
+    MODE = new_mode
+    
+    tracked_faces.clear(); name_history.clear(); next_id = 0
+    stable_boxes.clear(); last_announced.clear()
+    latest_ocr_text = ""; ocr_stability_count = 0
+    
+    modes = {1: "Obstacle", 2: "Currency", 3: "Face Recognition", 4: "Text Reading"}
+    print(f">>> Mode: {modes.get(new_mode)}")
+    speak_async(f"{modes.get(new_mode)} mode")
+
+def trigger_sos_logic():
+    global last_sos_time
+    if time.time() - last_sos_time > SOS_COOLDOWN:
+        last_sos_time = time.time()
+        speak_async("S O S Activated")
+        send_whatsapp_sos()
+
+threading.Thread(target=background_voice_listener, daemon=True).start()
+
+def generate_frames():
+    global last_yolo_time, tracked_faces, next_id, last_announced, last_speak_time, last_face_speak, stable_boxes
+    global latest_ocr_text, ocr_stability_count, ocr_frame_buffer
+
+    previous_ocr_speak = ""
+
+    while True:
+        frame = cam.get_frame()
+        if frame is None: 
+            time.sleep(0.1)
+            continue
+        
+        h, w = frame.shape[:2]
+        now = time.time()
+        current_detected = set()
+
+        if MODE == 1: # OBSTACLE
+            if now - last_yolo_time >= YOLO_INTERVAL:
+                last_yolo_time = now
+                res = object_model(frame, imgsz=640, conf=0.5, verbose=False)[0]
+                for box in res.boxes:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    label = object_model.names[int(box.cls[0])]
+                    cx = (x1+x2)//2
+                    direction = "Left" if cx < w//3 else "Right" if cx > 2*w//3 else "Front"
+                    lbl = f"{label} {direction}"
+                    current_detected.add(lbl)
+                    stable_boxes[lbl] = (x1, y1, x2, y2, now)
+        
+            for lbl, (x1,y1,x2,y2,ts) in list(stable_boxes.items()):
+                if now - ts > BOX_HOLD_TIME: del stable_boxes[lbl]; continue
+                cv2.rectangle(frame, (x1,y1), (x2,y2), (0,255,0), 2)
+                cv2.putText(frame, lbl, (x1, y1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,0), 2)
+
+        elif MODE == 2:
+            bx1, by1, bx2, by2 = w//2-200, h//2-150, w//2+200, h//2+150
+            cv2.rectangle(frame, (bx1, by1), (bx2, by2), (0,255,255), 2)
+            if now - last_yolo_time >= YOLO_INTERVAL:
+                last_yolo_time = now
+                roi = frame[by1:by2, bx1:bx2]
+                model_to_use = currency_model if currency_model else object_model
+                res = model_to_use(roi, imgsz=640, conf=0.6, verbose=False)[0]
+                for box in res.boxes:
+                    label = model_to_use.names[int(box.cls[0])]
+                    current_detected.add(label)
+                    cv2.putText(frame, label, (bx1, by1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255,0,0), 2)
+
+        elif MODE == 3: 
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces_rects = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
+            new_tracked, names_frame = {}, set()
+
+            for (x, y, ww, hh) in faces_rects:
+                cx, cy = x + ww//2, y + hh//2
+                mid = None
+                for fid, (tx, ty) in tracked_faces.items():
+                    if hypot(cx - tx, cy - ty) < 80:
+                        mid = fid; break
+                
+                if mid is None:
+                    mid = next_id
+                    next_id += 1
+                    name_history[mid] = []
+
+                new_tracked[mid] = (cx, cy)
+                pname = "Unknown"
+                if model_trained:
+                    roi = cv2.resize(gray[y:y+hh, x:x+ww], (200,200))
+                    label, dist = recognizer.predict(roi)
+                    if dist < CONF_THRESHOLD: 
+                        pname = label_map.get(label, "Unknown")
+                
+                name_history[mid].append(pname)
+                if len(name_history[mid]) > HISTORY_SIZE: name_history[mid].pop(0)
+                final_name = Counter(name_history[mid]).most_common(1)[0][0]
+                names_frame.add(final_name)
+                
+                color = (0, 255, 0) if final_name != "Unknown" else (0, 0, 255)
+                cv2.rectangle(frame, (x, y), (x+ww, y+hh), color, 2)
+                cv2.putText(frame, final_name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+
+            tracked_faces = new_tracked
+            if names_frame and now - last_face_speak > FACE_SPEAK_DELAY:
+                valid_names = [n for n in names_frame if n != "Unknown"]
+                if valid_names:
+                    txt = f"{' and '.join(valid_names)} is here"
+                    speak_async(txt)
+                elif "Unknown" in names_frame:
+                    speak_async("Unknown person detected")
+                last_face_speak = now
+
+
+
+
+
 
