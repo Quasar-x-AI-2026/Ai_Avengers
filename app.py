@@ -402,7 +402,7 @@ def generate_frames():
                     speak_async("Unknown person detected")
                 last_face_speak = now
 
-elif MODE == 4: 
+        elif MODE == 4: 
             bx1, by1, bx2, by2 = w//2-300, h//2-150, w//2+300, h//2+150
             cv2.rectangle(frame, (bx1, by1), (bx2, by2), (255,255,0), 2)
             
@@ -457,7 +457,7 @@ HTML_TEMPLATE = """
             --border-radius: 12px;
         }
 
-         body { 
+        body { 
             background: radial-gradient(circle at top right, #1a1a2e, var(--bg-dark));
             color: var(--text-main); 
             font-family: 'Rajdhani', sans-serif; 
@@ -616,8 +616,7 @@ HTML_TEMPLATE = """
             .expand-btn { display: none; }
         }
     </style>
-
-    </head>
+</head>
 <body>
     <header>
         <div class="brand">
@@ -784,12 +783,3 @@ def quit_app():
 if __name__ == "__main__":
     print(">>> Starting Flask Server...")
     app.run(host='0.0.0.0', port=5000, debug=False)
-
-
-
-
-
-
-
-
-
