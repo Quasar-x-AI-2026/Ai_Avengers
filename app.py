@@ -402,6 +402,63 @@ def generate_frames():
                     speak_async("Unknown person detected")
                 last_face_speak = now
 
+elif MODE == 4: 
+            bx1, by1, bx2, by2 = w//2-300, h//2-150, w//2+300, h//2+150
+            cv2.rectangle(frame, (bx1, by1), (bx2, by2), (255,255,0), 2)
+            
+            with ocr_buffer_lock:
+                ocr_frame_buffer = frame[by1:by2, bx1:bx2].copy()
+            
+            text = latest_ocr_text
+            
+            if text and text == previous_ocr_speak:
+                ocr_stability_count += 1
+            else:
+                ocr_stability_count = 0
+                previous_ocr_speak = text 
+                
+            if ocr_stability_count >= OCR_STABILITY_THRESHOLD:
+                if len(text) > 4: 
+                    current_detected.add(text)
+                    if ocr_stability_count > 10: ocr_stability_count = 0
+
+        if MODE != 3 and current_detected:
+            txt = " ".join(sorted(current_detected))
+            if txt and (current_detected != last_announced or now - last_speak_time > SPEAK_DELAY):
+                speak_async(txt)
+                last_announced = current_detected.copy()
+                last_speak_time = now
+      
+        try:
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame_bytes = buffer.tobytes()
+            yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+        except: pass
+
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VISION VOICE | AI Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg-dark: #09090b;
+            --panel-glass: rgba(20, 20, 25, 0.7);
+            --primary: #00f3ff;
+            --primary-glow: rgba(0, 243, 255, 0.4);
+            --danger: #ff0f5b;
+            --text-main: #ffffff;
+            --text-muted: #8892b0;
+            --sidebar-width: 340px;
+            --border-radius: 12px;
+        }
+
+
+
 
 
 
