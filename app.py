@@ -754,6 +754,36 @@ HTML_TEMPLATE = """
 </html>
 """
 
+@app.route('/')
+def index():
+    return render_template_string(HTML_TEMPLATE)
+
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+@app.route('/set_mode/<int:mode>')
+def set_mode(mode):
+    change_mode_logic(mode)
+    return jsonify(success=True)
+
+@app.route('/get_status')
+def get_status():
+    return jsonify(mode=MODE)
+
+@app.route('/sos')
+def sos():
+    trigger_sos_logic()
+    return jsonify(success=True)
+
+@app.route('/quit')
+def quit_app():
+    speak_async("System shutting down")
+    os._exit(0)
+
+if __name__ == "__main__":
+    print(">>> Starting Flask Server...")
+    app.run(host='0.0.0.0', port=5000, debug=False)
 
 
 
