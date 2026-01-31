@@ -25,7 +25,7 @@ using voice commands and a camera.
 - Reads text aloud using text-to-speech
 
 ### 🙂 Face Recognition
-- Recognizes known individuals using LBPH face recognition
+- Recognizes known individuals using openCV
 - Announces names to the user
 - Useful in social interactions
 
@@ -129,5 +129,6 @@ EMERGENCY_WHATSAPP_TO = "whatsapp:+91XXXXXXXXXX"
 - Multilingual voice support
 
 ---
+
 
 
