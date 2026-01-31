@@ -62,6 +62,7 @@ You can also switch modes using keyboard keys **(1–5)**.
 - **Twilio WhatsApp API** – Emergency message delivery
 - **PyTorch** – Deep learning framework
 - **Windows SAPI** – Text-to-speech engine
+- **DROID CAM**
 
 
 ---
@@ -100,7 +101,7 @@ python app.py
 ## Configuration
 
 - Update Twilio credentials before use
-- Change camera index source (0,1,2) if required 
+- Change camera index source (0,1,2,3) if required 
 - Ensure model files are in correct paths
 
 ---
@@ -129,6 +130,7 @@ EMERGENCY_WHATSAPP_TO = "whatsapp:+91XXXXXXXXXX"
 - Multilingual voice support
 
 ---
+
 
 
 
