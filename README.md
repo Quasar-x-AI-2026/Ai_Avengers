@@ -100,9 +100,9 @@ python app.py
 
 ## Configuration
 
-- Update Twilio credentials before use
-- Change camera index source (0,1,2,3) if required 
-- Ensure model files are in correct paths
+- Update Twilio credentials before use.
+- Change camera index source (0,1,2,3) if required for using laptop cam or mobile cam using usb. 
+- Ensure model files are in correct paths.
 
 ---
 
@@ -130,6 +130,7 @@ EMERGENCY_WHATSAPP_TO = "whatsapp:+91XXXXXXXXXX"
 - Multilingual voice support
 
 ---
+
 
 
 
