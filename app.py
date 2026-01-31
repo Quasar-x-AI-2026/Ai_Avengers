@@ -617,6 +617,144 @@ HTML_TEMPLATE = """
         }
     </style>
 
+    </head>
+<body>
+    <header>
+        <div class="brand">
+            <i class="fas fa-eye" style="color:var(--primary); font-size: 1.5rem;"></i>
+            <h1>VISION <span>ASSIST</span></h1>
+        </div>
+        <div class="status-badge"><div class="status-dot"></div> SYSTEM ONLINE</div>
+    </header>
+    
+    <div class="dashboard" id="dashboard">
+        <div class="video-container">
+            <div class="overlay-info">
+                CAM_01: ACTIVE<br>
+                RES: 1280x720<br>
+                MODE: <span id="mode-display">Obstacle</span>
+            </div>
+            <button class="expand-btn" onclick="toggleCinemaMode()" title="Toggle Fullscreen">
+                <i class="fas fa-expand"></i>
+            </button>
+            <div class="video-box">
+                <img src="{{ url_for('video_feed') }}" alt="Live Feed">
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="panel-header">MODE SELECTOR (KEYS 1-4)</div>
+            
+            <button class="btn active" id="btn-1" onclick="manualSetMode(1, 'Obstacle Detection', this)">
+                <span style="font-family: Orbitron; color: var(--primary); font-weight: bold; width: 15px;">1</span> 
+                <i class="fas fa-cube"></i> <div>Obstacle Mode</div>
+            </button>
+            
+            <button class="btn" id="btn-2" onclick="manualSetMode(2, 'Currency Recognition', this)">
+                <span style="font-family: Orbitron; color: var(--primary); font-weight: bold; width: 15px;">2</span>
+                <i class="fas fa-rupee-sign"></i> <div>Currency Mode</div>
+            </button>
+            
+            <button class="btn" id="btn-3" onclick="manualSetMode(3, 'Face Recognition', this)">
+                <span style="font-family: Orbitron; color: var(--primary); font-weight: bold; width: 15px;">3</span>
+                <i class="fas fa-user-shield"></i> <div>Face ID</div>
+            </button>
+
+            <button class="btn" id="btn-4" onclick="manualSetMode(4, 'Text Reader (OCR)', this)">
+                <span style="font-family: Orbitron; color: var(--primary); font-weight: bold; width: 15px;">4</span>
+                <i class="fas fa-book-reader"></i> <div>Text Reader</div>
+            </button>
+
+            <div class="panel-header" style="margin-top:10px;">ACTIONS (KEYS 5 & 0)</div>
+            <div class="log-box" id="log-text">> System Initialized...</div>
+            
+            <button class="btn btn-sos" id="btn-5" onclick="triggerSOS()">
+                <span style="position: absolute; left: 15px; font-family: Orbitron; opacity: 0.7;">5</span>
+                <i class="fas fa-radiation"></i> SOS ALERT
+            </button>
+            
+            <button class="btn btn-quit" id="btn-0" onclick="quitSystem()">
+                <i class="fas fa-power-off"></i> POWER OFF (0)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 1;
+        const modeNames = {1: "Obstacle", 2: "Currency", 3: "Face", 4: "Text"};
+
+        function toggleCinemaMode() {
+            const dash = document.getElementById('dashboard');
+            dash.classList.toggle('cinema-mode');
+            const icon = document.querySelector('.expand-btn i');
+            if(dash.classList.contains('cinema-mode')) {
+                icon.classList.remove('fa-expand'); icon.classList.add('fa-compress');
+            } else {
+                icon.classList.remove('fa-compress'); icon.classList.add('fa-expand');
+            }
+        }
+
+        function updateLog(message) {
+            const log = document.getElementById('log-text');
+            const now = new Date().toLocaleTimeString();
+            log.innerHTML = `> [${now}]<br>> ${message}`;
+        }
+
+        function manualSetMode(mode, name, element) {
+            updateUIForMode(mode);
+            fetch('/set_mode/' + mode).then(response => {
+                updateLog(`Mode Set: ${modeNames[mode]}`);
+            });
+        }
+
+        function updateUIForMode(mode) {
+            if(currentMode === mode) return;
+            currentMode = mode;
+            
+            document.getElementById('mode-display').innerText = modeNames[mode];
+            document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
+            
+            const btn = document.getElementById('btn-' + mode);
+            if(btn) btn.classList.add('active');
+        }
+
+        function syncStatus() {
+            fetch('/get_status')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.mode !== currentMode) {
+                        updateUIForMode(data.mode);
+                        updateLog(`Voice Sync: ${modeNames[data.mode]}`);
+                    }
+                })
+                .catch(e => console.log("Sync error", e));
+        }
+
+        setInterval(syncStatus, 1000);
+
+        function triggerSOS() { fetch('/sos').then(() => updateLog("⚠️ SOS SIGNAL SENT")); }
+        
+        function quitSystem() { 
+            updateLog("SHUTTING DOWN..."); 
+            fetch('/quit'); 
+            setTimeout(() => { document.body.innerHTML = "<div style='color:white;text-align:center;margin-top:20%;font-family:Orbitron'><h1>SYSTEM OFFLINE</h1></div>"; }, 1000); 
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if(event.key === '1') document.getElementById('btn-1').click();
+            if(event.key === '2') document.getElementById('btn-2').click();
+            if(event.key === '3') document.getElementById('btn-3').click();
+            if(event.key === '4') document.getElementById('btn-4').click();
+            if(event.key === '5') document.getElementById('btn-5').click();
+            if(event.key === '0') document.getElementById('btn-0').click();
+            if(event.key === 'f' || event.key === 'F') toggleCinemaMode();
+        });
+    </script>
+</body>
+</html>
+"""
+
+
 
 
 
