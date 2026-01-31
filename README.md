@@ -42,10 +42,10 @@ using voice commands and a camera.
 |-----|--------------|-------------|
 | Obstacle Detection | "Obstacle" | Detects nearby objects |
 | Currency Detection | "Currency", "Money" | Identifies currency notes |
-| Text Reading | "Read", "Text" | Reads printed text |
-| Face Recognition | "Face", "Who is" | Recognizes known faces |
+| Text Reading | "Text" | Reads printed text |
+| Face Recognition | "Face", "Who" | Recognizes known faces |
 | Emergency SOS | "SOS", "Help" | Sends emergency alert |
-| Exit | "Exit", "Quit" | Closes the application |
+| Exit | "STOP" | Closes the application |
 
 
 You can also switch modes using keyboard keys **(1–5)**.
@@ -129,6 +129,7 @@ EMERGENCY_WHATSAPP_TO = "whatsapp:+91XXXXXXXXXX"
 - Multilingual voice support
 
 ---
+
 
 
 
