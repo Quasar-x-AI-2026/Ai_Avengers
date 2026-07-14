@@ -20,10 +20,10 @@ app = Flask(__name__)
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
-TWILIO_ACCOUNT_SID = "AC69bd1a8455a8d8f020a42926781b1b17"
-TWILIO_AUTH_TOKEN = "2086af9ed51c2598963329e2e0732610"
-TWILIO_WHATSAPP_FROM = "whatsapp:+14155238886"
-EMERGENCY_WHATSAPP_TO = "whatsapp:+919151757403"
+TWILIO_ACCOUNT_SID = "AC69bd1a8455a8dxxxxxxxxxxxxxxxx"
+TWILIO_AUTH_TOKEN = "2086af9ed51cxxxxxxxxxxxxxxx"
+TWILIO_WHATSAPP_FROM = "whatsapp:+1415xxxxxxxxx"
+EMERGENCY_WHATSAPP_TO = "whatsapp:+9191xxxxxxxxxxx"
 
 CAMERA_SOURCE = 1
 torch.set_num_threads(4)
